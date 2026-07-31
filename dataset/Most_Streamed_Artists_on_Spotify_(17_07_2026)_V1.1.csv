@@ -1,4 +1,4 @@
-Artist Name,Sex,Country of Origin,Primary Language,Primary Genre, Artist Type,Debut Year,Total Streams (in millions),Lead Streams (in millions),Feature Streams (in millions),Solo Streams (in millions),% of Solo Streams,Collaborative Streams (in millions),% of Collaborative Streams
+Artist_Name,Sex,Country_of_Origin,Primary_Language,Primary_Genre, Artist_Type,Debut_Year,Total_Streams_(in_millions),Lead_Streams_(in_millions),Feature_Streams_(in_millions),Solo_Streams_(in_millions),%_of_Solo_Streams,Collaborative_Streams_(in_millions),%_of_Collaborative_Streams
 Drake,Male,Canada,English,Hip-Hop,Solo,2006,137492.1,94851.1,42640.9,53323.9,38.78324646,84168.2,61.21675354
 Taylor Swift,Female,United States,English,Pop,Solo,2006,127861.0,126177.3,1683.8,113421.5,88.706877,14439.5,11.293123
 Bad Bunny,Male,United States,Spanish,Reggaeton,Solo,2013,125899.8,82189.3,43710.5,48887.0,38.83008551,77012.8,61.16991449
