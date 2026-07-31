@@ -4,30 +4,30 @@
     <head>
             <title>Top Streamed Spotify Artists</title>
     </head>
-    <body onload='init()'>
+    <body onload='init()' style='margin-left:8%;margin-right:8%'>
         <h1>Narrative Visualization Final Project</h1>
         <p>
-            Kathryn Thompson (kyt3)  
+            Kathryn Thompson (kyt3)  <br><br>
 
-            Welcome to my final project for CS416 Data Visualization.  
+            Welcome to my final project for CS416 Data Visualization.  <br><br>
 
             text for scene 1
         </p>
             
-        <svg width=300 height=300 id="scene1"></svg>
-        <svg width=300 height=300 id="scene2"></svg>
-        <svg width=300 height=300 id="scene3"></svg>
+        <svg width=800 height=600 id="scene1"></svg>
+        <svg width=800 height=600 id="scene2"></svg>
+        <svg width=800 height=600 id="scene3"></svg>
         
         <script>
             async function init() {
             //enter your code here
-            // const data = await d3.csv('dataset/Most_Streamed_Artists_on_Spotify_(17_07_2026)_V1.1.csv')
-            const data = await d3.csv('https://flunky.github.io/cars2017.csv')
+            const data = await d3.csv('dataset/Most_Streamed_Artists_on_Spotify_(17_07_2026)_V1.1.csv')
+            //const data = await d3.csv('https://flunky.github.io/cars2017.csv')
 
-            ydomain = [10,150]
-            yrange = [200,0]
-            xdomain = [10,150]
-            xrange = [0,200]
+            ydomain = [10,550]
+            yrange = [600,0]
+            xdomain = [10,750]
+            xrange = [0,800]
 
             var xs = d3.scaleLog().base(10).domain(xdomain).range(xrange);
             var ys = d3.scaleLog().base(10).domain(ydomain).range(yrange);
