@@ -39,9 +39,9 @@
             .data(data)
             .enter()
             .append('circle')
-            .attr('cx', function(d,i){return xs(d.AverageCityMPG);})
-            .attr('cy', function(d,i){return ys(d.AverageHighwayMPG);})
-            .attr('r', function(d,i){return (2 + (+d.EngineCylinders));})
+            .attr('cx', function(d,i){return xs(d.Total_Streams_in_millions);})
+            .attr('cy', function(d,i){return ys(d.Collaborative_Streams_in_millions);})
+            .attr('r', function(d,i){return (d.no_of_Collaborative_Streams);})
 
             d3.select('#scene1')
             .append('g')
