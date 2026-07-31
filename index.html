@@ -1,9 +1,10 @@
-<!DOCTYPE html>
 <html>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <style> circle {fill: lightblue; stroke: black;} </style>
     <head>
-        <title>Top Streamed Spotify Artists</title>
+            <title>Top Streamed Spotify Artists</title>
     </head>
-    <body>
+    <body onload='init()'>
         <h1>Narrative Visualization Final Project</h1>
         <p>
             Kathryn Thompson (kyt3)  
@@ -12,19 +13,51 @@
 
             text for scene 1
         </p>
-        <div id = 'scene1'></div>
+            
+        <svg width=300 height=300 id="scene1"></svg>
+        <svg width=300 height=300 id="scene2"></svg>
+        <svg width=300 height=300 id="scene3"></svg>
+        
+        <script>
+            async function init() {
+            //enter your code here
+            // const data = await d3.csv('dataset/Most_Streamed_Artists_on_Spotify_(17_07_2026)_V1.1.csv')
+            const data = await d3.csv('https://flunky.github.io/cars2017.csv')
 
-        <p>
-            text for scene 2
-        </p>
-        <div id = 'scene2'></div>
+            ydomain = [10,150]
+            yrange = [200,0]
+            xdomain = [10,150]
+            xrange = [0,200]
 
-        <p>
-            text for scene 3
-        </p>        
-        <div id = 'scene3'></div>
+            var xs = d3.scaleLog().base(10).domain(xdomain).range(xrange);
+            var ys = d3.scaleLog().base(10).domain(ydomain).range(yrange);
 
-        <script src="https://d3js.org/d3.v7.min.js"></script>
-        <script src="script.js"></script>
+            d3.select('#scene1')
+            .append('g')
+            .attr('transform','translate(50,50)')
+            .selectAll('circle')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('cx', function(d,i){return xs(d.AverageCityMPG);})
+            .attr('cy', function(d,i){return ys(d.AverageHighwayMPG);})
+            .attr('r', function(d,i){return (2 + (+d.EngineCylinders));})
+
+            d3.select('#scene1')
+            .append('g')
+            .attr('transform','translate(50,50)')
+            .call(d3.axisLeft(ys)
+            .tickValues([10,20,50,100])
+            .tickFormat(d3.format('~s')))
+
+            d3.select('#scene1')
+            .append('g')
+            .attr('transform','translate(50,250)')
+            .call(d3.axisBottom(xs)
+            .tickValues([10,20,50,100])
+            .tickFormat(d3.format('~s')))
+
+            }
+        </script>
     </body>
 </html>
