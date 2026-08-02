@@ -1,62 +1,416 @@
 <html>
     <script src='https://d3js.org/d3.v5.min.js'></script>
-    <style> circle {fill: lightblue; stroke: black;} </style>
+    <style> circle {stroke: black;} </style>
+    
     <head>
-            <title>Top Streamed Spotify Artists</title>
+            <title>CS416 Final Project</title>
     </head>
     <body onload='init()' style='margin-left:8%;margin-right:8%'>
         <h1>Narrative Visualization Final Project</h1>
         <p>
             Kathryn Thompson (kyt3)  <br><br>
 
-            Welcome to my final project for CS416 Data Visualization.  <br><br>
+            Welcome to my final project for CS416 Data Visualization.  <br><br><br>
 
-            text for scene 1
+            Larger engines do not relate to higher Miles per Gallon (MPG).  <br>
+            Miles per gallon (MPG) by Engine Cylinders and Fuel Type for 2017 Cars.  <br>
         </p>
-            
-        <svg width=800 height=600 id="scene1"></svg>
-        <svg width=800 height=600 id="scene2"></svg>
-        <svg width=800 height=600 id="scene3"></svg>
-        
+        <button onclick="nextscene()">Next Scene</button><br><br>
+        <svg width=600 height=600 id="scene1"></svg>
+        <p>
+            We are able to see in this visualization that cars with more cylinders tend to have lower MPG, and that electric cars have the highest MPG.  <br><br>
+        </p>
+
+        <svg width=600 height=300 id="scene2"></svg>
+
+        <p>
+            regardless of engine size, electric cars have the highest Miles per Gallon (MPG).  <br><br>
+        </p>
+        <svg width=600 height=600 id="scene3"></svg>
+        <select id="make-select" multiple onchange="updateScene3()">
+            <!-- <option value="">All Makes</option> -->
+        </select>
+
+        <select id="fuel-select" multiple onchange="updateScene3()">
+            <!-- <option value="">All Fuels</option> -->
+            <!-- <option value="">Gasoline</option>
+            <option value="">Diesel</option>
+            <option value="">Electric</option> -->
+        </select>
+
+        <select id="engine-select" multiple onchange="updateScene3()">
+            <!-- <option value="">All Engines</option> -->
+        </select>
+
+        </svg>
         <script>
+            let currentscene = 1;
+            let makeFilter = "";
+            let fuelFilter = "";
+            let engineFilter = "";
+
             async function init() {
             //enter your code here
-            const data = await d3.csv('dataset/Most_Streamed_Artists_on_Spotify_(17_07_2026)_V1.1.csv')
-            //const data = await d3.csv('https://flunky.github.io/cars2017.csv')
+            d3.select('#nextscene')
+                .on('click', function(){
+                    currentscene++;
+                    currentscene = currentscene % 4 +1 ;
+                    nextscene();
+                });
 
-            ydomain = [10,550]
-            yrange = [600,0]
-            xdomain = [10,750]
-            xrange = [0,800]
+            const data = await d3.csv('https://flunky.github.io/cars2017.csv')
 
-            var xs = d3.scaleLog().base(10).domain(xdomain).range(xrange);
-            var ys = d3.scaleLog().base(10).domain(ydomain).range(yrange);
+            // SCENE 1:
+            ydomain1 = [10,130]
+            yrange1 = [500,0]
+            xdomain1 = [-1,14]
+            xrange1 = [0,500]
+            cdomain1 = data.map(d => d.Fuel)
+            crange1 = ["red","yellow","green"]
+            // console.log(cdomain1)
+
+            var colorScale1 = d3.scaleOrdinal().domain(cdomain1).range(crange1);
+            var ys1 = d3.scaleLinear().domain(ydomain1).range(yrange1);
+            var xs1 = d3.scaleLinear().domain(xdomain1).range(xrange1);
 
             d3.select('#scene1')
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 600)
+                .attr("height", 600)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+
+            d3.select('#scene1')
+                .append('g')
+                .attr('transform','translate(50,50)')
+                .selectAll('circle')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('cx', d=> xs1(+d.EngineCylinders))
+                .attr('cy', d=> ys1(+d.AverageHighwayMPG))
+                .attr('r', 3)
+                .attr('fill', d=>colorScale1(d.Fuel))
+            
+
+            d3.select('#scene1')
+                .append('g')
+                .attr('transform','translate(50,50)')
+                .call(d3.axisLeft(ys1)
+                .tickValues([20,40,60,80,100,120])
+                .tickFormat(d3.format('~s')))
+
+            d3.select('#scene1')
+                .append('g')
+                .attr('transform','translate(50,550)')
+                .call(d3.axisBottom(xs1)
+                .tickValues([0,2,4,6,8,10,12])
+                .tickFormat(d3.format('~s')))
+
+
+            // SCENE 2:    
+            d3.select('#scene2')
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 600)
+                .attr("height", 600)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+
+
+            ydomain2 = ['Gasoline','Diesel','Electric']
+            yrange2 = [150,0]
+            xdomain2 = [0,100]
+            xrange2 = [0,300]
+            cdomain2 = data.map(d => d.Fuel)
+            crange2 = ["red","yellow","green"]
+            // console.log(cdomain2)
+
+            var colorScale2 = d3.scaleOrdinal().domain(cdomain2).range(crange2);
+            var ys2 = d3.scaleBand().domain(ydomain2).range(yrange2);
+            var xs2 = d3.scaleLinear().domain(xdomain2).range(xrange2);
+            // console.log(xs2.domain())
+
+            avg_mpg_by_fuel = d3.nest()
+                .key(d => d.Fuel)                 // 1. Value to group/sort on
+                .rollup(v => d3.mean(v, d => d.AverageHighwayMPG)) // 2. Value to average
+                .entries(data)
+            console.log(avg_mpg_by_fuel)
+            console.log(avg_mpg_by_fuel.map(d => d.key))
+            console.log(avg_mpg_by_fuel.map(d => d.key))
+            console.log(avg_mpg_by_fuel.map(d => d.value))
+            console.log(avg_mpg_by_fuel[0].value)
+
+            d3.select('#scene2')
+                .append('g')
+                .attr('transform','translate(50,50)')
+                .selectAll('rect')
+                .data(avg_mpg_by_fuel)
+                .enter()
+                .append('rect')
+                .attr('x', 0)
+                .attr('y', (d,i)=> ys2(d.key))
+                .attr('width', (d,i)=> xs2(d.value))
+                .attr('height', ys2.bandwidth())
+                .attr('fill', (d,i)=>colorScale2(d.key))
+            
+            d3.select('#scene2')
+                .append('g')
+                .attr('transform','translate(50,50)')
+                .call(d3.axisLeft(ys2))
+            console.log(ys2.domain)
+
+            d3.select('#scene2')
+                .append('g')
+                .attr('transform','translate(50,200)')
+                .call(d3.axisBottom(xs2)
+                .tickFormat(d3.format('~s'))
+                .tickValues([10,20,30,40,50,60,70,80,90,100]))
+            
+            // d3.select('#scene2')
+            //     .append('g')
+            //     .attr('transform','translate(100,50)')
+            //     .selectAll('text')
+            //     .data(data)
+            //     .enter()
+            //     .append('text')
+            //     .attr('x', 0)
+            //     .attr('y', (d,i)=> 100-(i*50) + 20)
+            //     .text((d,i)=> avg_mpg_by_fuel.map(d => d.key)[i] + ": " + avg_mpg_by_fuel.map(d => d.value)[i].toFixed(2) + " MPG")
+
+
+            // SCENE 3:
+            d3.select('#scene3')
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 600)
+                .attr("height", 600)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+
+            avg_mpg_by_comp_fuel_eng = d3.nest()
+                .key(d => d.Make)                 // 1. Value to group/sort on
+                .key(d => d.Fuel)                 // 1. Value to group/sort on
+                .key(d => d.EngineCylinders)                 // 1. Value to group/sort on
+                .rollup(v => { return { 
+                    highway: d3.mean(v, d => d.AverageHighwayMPG), 
+                    city: d3.mean(v, d => d.AverageCityMPG),
+                    count: v.length
+                 }; }) // 2. Value to average
+                .entries(data)
+            
+            flattenData = avg_mpg_by_comp_fuel_eng
+                .map(make => 
+                    make.values.map(fuel => 
+                        fuel.values.map((cylinders,i) => ({
+                            make: make.key,
+                            fuel: fuel.key,
+                            cylinders: cylinders.key,
+                            highway: cylinders.value.highway,
+                            city: cylinders.value.city,
+                            count: cylinders.value.count
+                        }))
+                    )
+                )
+                .flat(2)
+            console.log(avg_mpg_by_comp_fuel_eng)
+            console.log(avg_mpg_by_comp_fuel_eng.map(d => d.key)) //make
+            console.log(avg_mpg_by_comp_fuel_eng.map(d => d.values[0]))
+            console.log(flattenData)
+            // console.log(flattenData.make)
+            // console.log(flattenData.make)
+
+            const makes = [...new Set(data.map(d => d.Make))];
+            
+            d3.select('#make-select')
+                .selectAll('option')
+                // .data(avg_mpg_by_comp_fuel_eng.map(d => d.key))
+                .data(makes)
+                .enter()
+                .append('option')
+                // .attr('value', d => d === "All Makes" ? "" : d)
+                .attr('value', d => d )
+                .text(d => d)
+            const engines = [...new Set(data.map(d => d.EngineCylinders))];
+            const fuels = [...new Set(data.map(d => d.Fuel))];
+            
+            d3.select('#fuel-select')
+                .selectAll('option')
+                .data(fuels)
+                .enter()
+                .append('option')
+                // .attr('value', d => d === "All Fuels" ? "" : d)
+                .attr('value', d => d )
+                .text(d => d)
+            console.log(avg_mpg_by_fuel.map(d => d.key))
+
+            d3.select('#engine-select')
+                .selectAll('option')
+                .data(engines)
+                .enter()
+                .append('option')
+                .attr('value', d => d)
+                .text(d => d)
+
+            
+
+            ydomain3 = [10,150]
+            yrange3 = [500,0]
+            xdomain3 = [10,150]
+            xrange3 = [0,500]
+            cdomain3 = avg_mpg_by_comp_fuel_eng.map(d => d.key)
+            console.log(cdomain3)
+            // console.log(ydomain3)
+
+            colorScale3 = d3.scaleOrdinal().domain(cdomain3).range(d3.schemeCategory10);
+            // var colorScale3 = d3.scaleSequential(d3.interpolateRainbow).domain(cdomain3);
+            // var colorScale3 = d3.scaleSequential(d3.interpolateRainbow).domain([0, cdomain3.length - 1]);
+            xs3 = d3.scaleLog().base(10).domain(xdomain3).range(xrange3);
+            ys3 = d3.scaleLog().base(10).domain(ydomain3).range(yrange3);
+
+            // console.log(xs3.domain())
+            scene3 = d3.select('#scene3')
             .append('g')
             .attr('transform','translate(50,50)')
-            .selectAll('circle')
-            .data(data)
+
+            scene3.selectAll('circle')
+            .data(flattenData)
             .enter()
             .append('circle')
-            .attr('cx', function(d,i){return xs(d.Total_Streams_in_millions);})
-            .attr('cy', function(d,i){return ys(d.Collaborative_Streams_in_millions);})
-            .attr('r', function(d,i){return (d.no_of_Collaborative_Streams);})
+            // .attr('cx', function(d,i){return xs(d.AverageCityMPG);})
+            // .attr('cy', function(d,i){return ys(d.AverageHighwayMPG);})
+            // .attr('r', function(d,i){return (2 + (+d.EngineCylinders));})
+            .attr('cx', d=> xs3(d.city))
+            .attr('cy', d=> ys3(d.highway))
+            .attr('r', d=> +d.count*3)
+            .attr('fill', d=>colorScale3(d.make))
+            
 
-            d3.select('#scene1')
-            .append('g')
-            .attr('transform','translate(50,50)')
-            .call(d3.axisLeft(ys)
-            .tickValues([10,20,50,100])
+            scene3.call(d3.axisLeft(ys3)
+            .tickValues([10,20,50,100,150])
             .tickFormat(d3.format('~s')))
 
-            d3.select('#scene1')
+            d3.select('#scene3')
             .append('g')
-            .attr('transform','translate(50,250)')
-            .call(d3.axisBottom(xs)
-            .tickValues([10,20,50,100])
+            .attr('transform','translate(50,550)')
+            .call(d3.axisBottom(xs3)
+            .tickValues([10,20,50,100,150])
             .tickFormat(d3.format('~s')))
 
+
+
+
+            // ydomain = data.map(d=>d.Fuel)
+            // yrange = [500,0]
+            // xdomain = [0,14]
+            // xrange = [0,500]
+
+            // var xs = d3.scaleLog().base(10).domain(xdomain).range(xrange);
+            // var ys = d3.scaleLog().base(10).domain(ydomain).range(yrange);
+
+            // d3.select('#scene1')
+            // .append('g')
+            // .attr('transform','translate(150,50)')
+            // .selectAll('circle')
+            // .data(data)
+            // .enter()
+            // .append('circle')
+            // // .attr('cx', function(d,i){return xs(d.AverageCityMPG);})
+            // // .attr('cy', function(d,i){return ys(d.AverageHighwayMPG);})
+            // // .attr('r', function(d,i){return (2 + (+d.EngineCylinders));})
+            // .attr('cx', d=> xs(d.EngineCylinders))
+            // .attr('cy', d=> ys(d.AverageHighwayMPG))
+            // .attr('r', 3)
+            // .attr('fill', d=>colorScale(d.FuelType))
+            
+
+            // d3.select('#scene1')
+            // .append('g')
+            // .attr('transform','translate(50,50)')
+            // .call(d3.axisLeft(ys)
+            // .tickValues([10,20,50,100,200])
+            // .tickFormat(d3.format('~s')))
+
+            // d3.select('#scene1')
+            // .append('g')
+            // .attr('transform','translate(50,550)')
+            // .call(d3.axisBottom(xs)
+            // .tickValues([10,20,50,100,200])
+            // .tickFormat(d3.format('~s')))
+
+
+            }
+            // async function nextscene() {
+            //     d3.select('#scene1').selectAll('*').remove();
+            //     if (currentscene == 1){scene1();};
+            //     elif (currentscene == 2){scene2();};
+            //     elif (currentscene == 3){scene3()};
+            //     else {currentscene = 1; scene1();};
+            // }
+
+            async function updateScene3() {
+                // Implementation for updating scene 3
+                // const flattenData = avg_mpg_by_comp_fuel_eng
+                // .map(make => 
+                //     make.values.map(fuel => 
+                //         fuel.values.map((cylinders,i) => ({
+                //             make: make.key,
+                //             fuel: fuel.key,
+                //             cylinders: cylinders.key,
+                //             highway: cylinders.value.highway,
+                //             city: cylinders.value.city,
+                //             count: cylinders.value.count
+                //         }))
+                //     )
+                // )
+                // .flat(2)
+
+                const makeFilter = Array.from(d3.select('#make-select').node().selectedOptions).map(option => option.value);
+                const fuelFilter = Array.from(d3.select('#fuel-select').node().selectedOptions).map(option => option.value);
+                const engineFilter = Array.from(d3.select('#engine-select').node().selectedOptions).map(option => option.value);
+                console.log(`Filters - Make: ${makeFilter}, Fuel: ${fuelFilter}, Engine: ${engineFilter}`);
+
+                const filteredData = flattenData.filter(d =>
+                    (makeFilter === "" || makeFilter.includes(d.make)) &&
+                    (fuelFilter === "" || fuelFilter.includes(d.fuel)) &&
+                    (engineFilter === "" || engineFilter.includes(d.cylinders))
+                );
+                console.log(`Filtered Data:`, filteredData);
+                
+                const filtered = d3.select('#scene3').select('g')
+                    .selectAll('circle')
+                    .data(filteredData, d => d.make + d.fuel + d.cylinders) // Use a key function to bind data
+                console.log(filteredData)
+                console.log("existing:", filtered.size());
+                console.log("enter:", filtered.enter().size());
+                console.log("exit:", filtered.exit().size());
+                
+                filtered.exit().remove();
+
+                ydomain3 = [10,150]
+                yrange3 = [500,0]
+                xdomain3 = [10,150]
+                xrange3 = [0,500]
+                cdomain3 = avg_mpg_by_comp_fuel_eng.map(d => d.key)
+                // console.log(ydomain3)
+
+                // var colorScale3 = d3.scaleOrdinal().domain(cdomain3).range(d3.schemeCategory10);
+                // var xs3 = d3.scaleLog().base(10).domain(xdomain3).range(xrange3);
+                // var ys3 = d3.scaleLog().base(10).domain(ydomain3).range(yrange3);
+                console.log(filteredData)
+                filtered.enter()
+                    .append('circle')
+                    .merge(filtered)
+                    // .transition()
+                    // .duration(1000)
+                    .attr('cx', d => xs3(d.city))
+                    .attr('cy', d => ys3(d.highway))
+                    .attr('r', d => +d.count * 3)
+                    .attr('fill', d => colorScale3(d.make));
             }
         </script>
     </body>
