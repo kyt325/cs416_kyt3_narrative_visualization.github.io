@@ -11,8 +11,10 @@
         <p>
             Kathryn Thompson (kyt3)  <br><br>
 
-            Welcome to my final project for CS416 Data Visualization.  <br><br><br>
+            Welcome to my final project for CS416 Data Visualization.  <br><br>
 
+            This narrative visualization is built using the dataset "Cars 2017" which contains information about cars sold in the United States in 2017. The link for this dataset can be accessed at this link:  <br><br>
+            <a href="https://flunky.github.io/cars2017.csv" target="_blank">https://flunky.github.io/cars2017.csv</a>  <br><br>
             Larger engines do not relate to higher Miles per Gallon (MPG).  <br>
             Miles per gallon (MPG) by Engine Cylinders and Fuel Type for 2017 Cars.  <br>
         </p>
@@ -28,13 +30,10 @@
 
         <div id='tooltip' opacity="0"></div>
 
-        <div id="filters">
-            <!-- <select id="make-select" multiple onchange="updateScene3()"></select>
-            <select id="fuel-select" multiple onchange="updateScene3()"></select>
-            <select id="engine-select" multiple onchange="updateScene3()"></select> -->
-        </div>
+        <div id="filters"></div>
 
         <script>
+            //parameters for scene 1, 2, and 3
             let currentscene = 1;
             
             let makeFilter = "";
@@ -54,6 +53,7 @@
 
             let filters;
 
+            // create tooltip for user-guided annotations
             let tooltip = d3.select('#tooltip')
                 .style('position','absolute')
                 .style('background-color','white')
@@ -78,6 +78,7 @@
                 data = await d3.csv('https://flunky.github.io/cars2017.csv')
                 
                 // SCENE 1:
+                //create the scales
                 ydomain1 = [10,130]
                 yrange1 = [500,0]
                 xdomain1 = [-1,14]
@@ -89,8 +90,8 @@
                 ys1 = d3.scaleLinear().domain(ydomain1).range(yrange1);
                 xs1 = d3.scaleLinear().domain(xdomain1).range(xrange1);
 
-
                 // SCENE 2:
+                //create the scales
                 ydomain2 = ['Gasoline','Diesel','Electric']
                 yrange2 = [150,0]
                 xdomain2 = [0,100]
@@ -102,25 +103,31 @@
                 ys2 = d3.scaleBand().domain(ydomain2).range(yrange2);
                 xs2 = d3.scaleLinear().domain(xdomain2).range(xrange2);
 
+                //generate data statistics
+                //   stats include average MPG by fuel type
+                //   referenced the following link:
+                //   https://amber.rbind.io/2017/05/02/nesting/
                 avg_mpg_by_fuel = d3.nest()
-                    .key(d => d.Fuel)                 // 1. Value to group/sort on
-                    .rollup(v => d3.mean(v, d => d.AverageHighwayMPG)) // 2. Value to average
+                    .key(d => d.Fuel)
+                    .rollup(v => d3.mean(v, d => d.AverageHighwayMPG))
                     .entries(data)
 
-
-                // SCENE 3:
-                
+                // SCENE 3: 
+                //generate data statistics
+                //   stats include average MPG by make, fuel type, and engine size               
                 avg_mpg_by_comp_fuel_eng = d3.nest()
-                    .key(d => d.Make)                 // 1. Value to group/sort on
-                    .key(d => d.Fuel)                 // 1. Value to group/sort on
-                    .key(d => d.EngineCylinders)                 // 1. Value to group/sort on
+                    .key(d => d.Make)
+                    .key(d => d.Fuel)
+                    .key(d => d.EngineCylinders)
                     .rollup(v => { return { 
                         highway: d3.mean(v, d => d.AverageHighwayMPG), 
                         city: d3.mean(v, d => d.AverageCityMPG),
                         count: v.length
-                    }; }) // 2. Value to average
+                    }; })
                     .entries(data)
-                
+            
+                // flatten data into usable form, referenced the following link
+                // https://stackoverflow.com/questions/67309147/how-to-flatten-d3-nest-using-javascript-map-method
                 flattenData = avg_mpg_by_comp_fuel_eng
                     .map(make => 
                         make.values.map(fuel => 
@@ -136,6 +143,7 @@
                     )
                     .flat(2)
 
+                // create the scales
                 ydomain3 = [10,150]
                 yrange3 = [500,0]
                 xdomain3 = [10,150]
@@ -146,6 +154,7 @@
                 xs3 = d3.scaleLog().base(10).domain(xdomain3).range(xrange3);
                 ys3 = d3.scaleLog().base(10).domain(ydomain3).range(yrange3);
 
+                // for filters grab unique entries
                 makes = [...new Set(data.map(d => d.Make))];
                 engines = [...new Set(data.map(d => d.EngineCylinders))];
                 fuels = [...new Set(data.map(d => d.Fuel))];
@@ -154,14 +163,6 @@
 
             //Scene 1:
             function scene1() {
-                // svg.append("rect")
-                //     .attr("x", 0)
-                //     .attr("y", 0)
-                //     .attr("width", 600)
-                //     .attr("height", 600)
-                //     .attr("fill", "none")
-                //     .attr("stroke", "red")
-
                 // scene 1 create scatter plot
                 scene.selectAll('circle')
                     .data(data)
@@ -183,6 +184,7 @@
                     .tickValues([0,2,4,6,8,10,12])
                     .tickFormat(d3.format('~s')))
 
+                // janky hardcoded annotation for an arrow
                 scene.append('g')
                     .append('line')
                     .attr('x1',50)
@@ -219,14 +221,6 @@
 
             // SCENE 2:    
             function scene2() {
-                // svg.append("rect")
-                //     .attr("x", 0)
-                //     .attr("y", 0)
-                //     .attr("width", 600)
-                //     .attr("height", 600)
-                //     .attr("fill", "none")
-                //     .attr("stroke", "red")
-
                 // scene 2 create bar chart
                 scene.append('g')
                     .attr('transform','translate(50,100)')
@@ -240,9 +234,12 @@
                     .attr('height', ys2.bandwidth())
                     .attr('fill', (d,i)=>colorScale2(d.key))
 
-                console.log(avg_mpg_by_fuel[2].value);
-                console.log(scene.node());
-                console.log(scene.attr("transform"));
+                //for debugging
+                // console.log(avg_mpg_by_fuel[2].value);
+                // console.log(scene.node());
+                // console.log(scene.attr("transform"));
+
+                // add annotation
                 addAnnotations(125, 125,175,75, `Electric cars have the highest MPG with an average of ${avg_mpg_by_fuel[2].value} MPG.`);
                 
                 // scene 2 create axes
@@ -260,14 +257,6 @@
 
             // SCENE 3:
             function scene3() {
-                // svg.append("rect")
-                //     .attr("x", 0)
-                //     .attr("y", 0)
-                //     .attr("width", 600)
-                //     .attr("height", 600)
-                //     .attr("fill", "none")
-                //     .attr("stroke", "red")
-
                 // scene 3 create filters
                 filters = d3.select('#filters')
 
@@ -342,6 +331,7 @@
                     .tickFormat(d3.format('~s')))
             }
             
+            //make next button functionality
             function nextscene() {
                 scene.selectAll('*').remove();
                 d3.select('#filters').selectAll('*').remove();
@@ -349,14 +339,13 @@
                 currentscene = (currentscene % 3) + 1;
                 if (currentscene == 1)
                     scene1();
-
                 else if (currentscene == 2)
                     scene2();
                 else 
-                    scene3();
-                
+                    scene3();   
             }
 
+            //make back button functionality
             function lastscene() {
                 scene.selectAll('*').remove();
                 d3.select('#filters').selectAll('*').remove();
@@ -366,37 +355,41 @@
                     currentscene = 3;
                     scene3();
                 }
-                else if (currentscene == 1){
+                else if (currentscene == 1)
                     scene1();
-                }
                 else 
                     scene2();
-                
             }
 
             //create filters and update scene 3 based on filter selections
             function updateScene3() {
+                //grab selected values
                 makeFilter = Array.from(d3.select('#make-select').node().selectedOptions).map(option => option.value);
                 fuelFilter = Array.from(d3.select('#fuel-select').node().selectedOptions).map(option => option.value);
                 engineFilter = Array.from(d3.select('#engine-select').node().selectedOptions).map(option => option.value);
-                console.log(`Filters - Make: ${makeFilter}, Fuel: ${fuelFilter}, Engine: ${engineFilter}`);
+                // console.log(`Filters - Make: ${makeFilter}, Fuel: ${fuelFilter}, Engine: ${engineFilter}`);
 
+                //filter data on selected values
                 const filteredData = flattenData.filter(d =>
                     (makeFilter === "" || makeFilter.includes(d.make)) &&
                     (fuelFilter === "" || fuelFilter.includes(d.fuel)) &&
                     (engineFilter === "" || engineFilter.includes(d.cylinders))
                 );
                 
+                //filter on enter, exit, and already there
                 const filtered = svg.select('g')
                     .selectAll('circle')
                     .data(filteredData, d => d.make + d.fuel + d.cylinders) // Use a key function to bind data
-                console.log(filteredData)
-                console.log("existing:", filtered.size());
-                console.log("enter:", filtered.enter().size());
-                console.log("exit:", filtered.exit().size());
+                
+                //for debugging
+                // console.log(filteredData)
+                // console.log("existing:", filtered.size());
+                // console.log("enter:", filtered.enter().size());
+                // console.log("exit:", filtered.exit().size());
                 
                 filtered.exit().remove();
 
+                //add as needed
                 filtered.enter()
                     .append('circle')
                     .merge(filtered)
@@ -428,7 +421,6 @@
                     .text(text)
                     .attr('font-size','12px')
                     .attr('fill','black');
-
             }
         </script>
     </body>
