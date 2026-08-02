@@ -335,6 +335,8 @@
             function nextscene() {
                 scene.selectAll('*').remove();
                 d3.select('#filters').selectAll('*').remove();
+                d3.select('#tooltip')
+                    .style('opacity',0)
 
                 currentscene = (currentscene % 3) + 1;
                 if (currentscene == 1)
@@ -349,7 +351,10 @@
             function lastscene() {
                 scene.selectAll('*').remove();
                 d3.select('#filters').selectAll('*').remove();
-
+                // d3.select('#tooltip').selectAll('*').remove();
+                d3.select('#tooltip')
+                    .style('opacity',0)
+                    
                 currentscene = currentscene - 1;
                 if (currentscene < 1 || currentscene == 3) {
                     currentscene = 3;
