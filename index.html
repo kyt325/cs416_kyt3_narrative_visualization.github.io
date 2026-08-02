@@ -19,17 +19,13 @@
             Miles per gallon (MPG) by Engine Cylinders and Fuel Type for 2017 Cars.  <br>
         </p>
 
-        <button onclick="lastscene()">Last Scene</button><br><br>
-        <button onclick="nextscene()">Next Scene</button><br><br>
+        <button onclick="lastscene()">Last Scene</button>
+        <button onclick="nextscene()">Next Scene</button><br>
         
+        <h2 id="scene-title"></h2>
         <svg width=600 height=600 id="scene"></svg>
-
-        <p>We are able to see in this visualization that cars with more cylinders tend to have lower MPG, and that electric cars have the highest MPG.  <br><br></p>
-
-        <p>regardless of engine size, electric cars have the highest Miles per Gallon (MPG).  <br><br></p>
-
+        <div id='scene-specific-txt'></div>
         <div id='tooltip' opacity="0"></div>
-
         <div id="filters"></div>
 
         <script>
@@ -163,6 +159,8 @@
 
             //Scene 1:
             function scene1() {
+                svg.attr('height', 600)
+
                 // scene 1 create scatter plot
                 scene.selectAll('circle')
                     .data(data)
@@ -216,14 +214,21 @@
                     .text('Fuel Efficiency Decreases as Engine Size Increases')
                     .attr('font-size','12px')
                     .attr('fill','black');
+                
+                d3.select('#scene-title')
+                    .html('Highway Miles Per Gallon by Engine Size')
+                d3.select('#scene-specific-txt')
+                    .html('In this data visualization, we are able to see that larger engines with more cylinders are less efficient. These larger engines have lower miles per gallon (MPG) on highways than their diesal or electric counterparts.')
             }
 
 
             // SCENE 2:    
             function scene2() {
                 // scene 2 create bar chart
+                svg.attr('height', 325)
+
                 scene.append('g')
-                    .attr('transform','translate(50,100)')
+                    .attr('transform','translate(50,50)')
                     .selectAll('rect')
                     .data(avg_mpg_by_fuel)
                     .enter()
@@ -240,23 +245,30 @@
                 // console.log(scene.attr("transform"));
 
                 // add annotation
-                addAnnotations(125, 125,175,75, `Electric cars have the highest MPG with an average of ${avg_mpg_by_fuel[2].value} MPG.`);
+                addAnnotations(125, 75,175,25, `Electric cars have the highest MPG with an average of ${avg_mpg_by_fuel[2].value} MPG.`);
                 
                 // scene 2 create axes
                 scene.append('g')
-                    .attr('transform','translate(50,100)')
+                    .attr('transform','translate(50,50)')
                     .call(d3.axisLeft(ys2))
 
                 scene.append('g')
-                    .attr('transform','translate(50,250)')
+                    .attr('transform','translate(50,200)')
                     .call(d3.axisBottom(xs2)
                     .tickFormat(d3.format('~s'))
                     .tickValues([10,20,30,40,50,60,70,80,90,100]))
+                
+                d3.select('#scene-title')
+                    .html('Average Highway Miles per Gallon (MPG) by Fuel Type')
+                d3.select('#scene-specific-txt')
+                    .html('While fuel efficiency decreases as engine size (in number of cylinders) grows, this is not the only factor leading to decreased efficiency. This scene demonstrates that on average, all electric vehicles far out-perform any other fuel type.')
             }    
                 
 
             // SCENE 3:
             function scene3() {
+                svg.attr('height', 600)
+
                 // scene 3 create filters
                 filters = d3.select('#filters')
 
@@ -329,6 +341,11 @@
                     .call(d3.axisBottom(xs3)
                     .tickValues([10,20,50,100,150])
                     .tickFormat(d3.format('~s')))
+
+                d3.select('#scene-title')
+                    .html('Average Highway and City MPG by Make, Fuel Type, and Engine Size')
+                d3.select('#scene-specific-txt')
+                    .html('While this relation exists across all vehicle manufacturers, some manufacturers are still able to make more efficient vehicles that are able to outperform their competitors.')
             }
             
             //make next button functionality
@@ -337,7 +354,8 @@
                 d3.select('#filters').selectAll('*').remove();
                 d3.select('#tooltip')
                     .style('opacity',0)
-
+                d3.select("#scene-specific-txt").html("");
+                d3.select('#scene-title').html('');
                 currentscene = (currentscene % 3) + 1;
                 if (currentscene == 1)
                     scene1();
@@ -354,6 +372,8 @@
                 // d3.select('#tooltip').selectAll('*').remove();
                 d3.select('#tooltip')
                     .style('opacity',0)
+                d3.select("#scene-specific-txt").html("");
+                d3.select('#scene-title').html('');
                     
                 currentscene = currentscene - 1;
                 if (currentscene < 1 || currentscene == 3) {
