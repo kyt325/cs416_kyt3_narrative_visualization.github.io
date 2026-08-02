@@ -22,9 +22,10 @@
         
         <h2 id="scene-title"></h2>
         <svg width=600 height=600 id="scene"></svg>
-        <div id='scene-specific-txt'></div>
-        <div id='tooltip' opacity="0"></div>
         <div id="filters"></div>
+        <div id='tooltip-txt'></div>
+        <br><div id='scene-specific-txt'></div>
+        <div id='tooltip' opacity="0"></div>
 
         <script>
             //parameters for scene 1, 2, and 3
@@ -342,6 +343,9 @@
 
                 d3.select('#scene-title')
                     .html('Average Highway and City MPG by Make, Fuel Type, and Engine Size')
+                d3.select('#tooltip-txt')
+                    .html('Tooltip is available on hover for this scene!')
+                    .style('color', 'blue')
                 d3.select('#scene-specific-txt')
                     .html('While this relation exists across all vehicle manufacturers, some manufacturers are still able to make more efficient vehicles that are able to outperform their competitors.')
             }
@@ -354,6 +358,8 @@
                     .style('opacity',0)
                 d3.select("#scene-specific-txt").html("");
                 d3.select('#scene-title').html('');
+                d3.select('#tooltip-txt').html('');
+
                 currentscene = (currentscene % 3) + 1;
                 if (currentscene == 1)
                     scene1();
@@ -372,6 +378,7 @@
                     .style('opacity',0)
                 d3.select("#scene-specific-txt").html("");
                 d3.select('#scene-title').html('');
+                d3.select('#tooltip-txt').html('');
                     
                 currentscene = currentscene - 1;
                 if (currentscene < 1 || currentscene == 3) {
