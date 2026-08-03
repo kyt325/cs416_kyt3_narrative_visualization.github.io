@@ -15,6 +15,8 @@
 
             This narrative visualization is built using the dataset "Cars 2017" which contains information about cars sold in the United States in 2017. The link for this dataset can be accessed at this link:  <br><br>
             <a href="https://flunky.github.io/cars2017.csv" target="_blank">https://flunky.github.io/cars2017.csv</a>  <br><br>
+       
+            The goal of this narrative visualization is to demonstrate that there are many factors that effect the performance of a vehicle, including, make, fuel type, and engine size. After exploring the narration, the viewer should wonder what priorities different manufacturers might have causing the differences in performance.
         </p>
 
         <button onclick="lastscene()">Last Scene</button>
@@ -239,8 +241,8 @@
                     .attr('fill', (d,i)=>colorScale2(d.key))
 
                 //for debugging
-                // console.log(avg_mpg_by_fuel[2].value);
-                // console.log(scene.node());
+                console.log(avg_mpg_by_fuel);
+                console.log(scene.node());
                 // console.log(scene.attr("transform"));
 
                 // add annotation
@@ -321,7 +323,8 @@
                     .append('circle')
                     .attr('cx', d=> xs3(d.city))
                     .attr('cy', d=> ys3(d.highway))
-                    .attr('r', d=> +d.count*3)
+                    .attr('r', d=> +d.cylinders+4)
+                    // .attr('r', d=> +d.count*3)
                     .attr('fill', d=>colorScale3(d.make))
                     .on('mouseover',(d,i)=>{
                         tooltip.style('opacity',1)
@@ -425,7 +428,7 @@
                     .merge(filtered)
                     .attr('cx', d => xs3(d.city))
                     .attr('cy', d => ys3(d.highway))
-                    .attr('r', d => +d.count * 3)
+                    .attr('r', d => +d.cylinders+4)
                     .attr('fill', d => colorScale3(d.make))
                     .on('mouseover',(d,i)=>{
                         tooltip.style('opacity',1)
